@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "A backend project in javascript",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "dev": "nodemon src/index.js"
+  }, 
   "keywords": [
     "javascript",
     "backend",
     "anshu"
   ],
   "author": "Anshu Raj Jaiswal",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
 }
