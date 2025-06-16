@@ -151,8 +151,8 @@ const logoutUser = asyncHandler( async(req, res) =>{
    await User.findByIdAndUpdate(
       req.user._id,
       {
-         $set:{
-           refreshToken: undefined
+         $unset:{
+           refreshToken: 1
          }
       },  
       {
@@ -196,17 +196,19 @@ const refreshAccessToken = asyncHandler( async(req, res) =>{
          secure: true
       }
    
-      const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
+      const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id)
+
+      // console.log(accessToken, refreshToken)
    
       return res
       .status(200)
       .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      .cookie("refreshToken", refreshToken, options)
       .json(
          new ApiResponse(
             200,
             {
-               accessToken, refreshToken: newRefreshToken
+               accessToken, refreshToken
             },
             "Access Token is refreshed"
          )
@@ -219,11 +221,12 @@ const refreshAccessToken = asyncHandler( async(req, res) =>{
 const changeCurrentPassword = asyncHandler( async(req,res) =>{
    const {oldPassword, newPassword} = req.body
 
-   const user = await User.find(req.user?._id) 
-   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+   const user = await User.findById(req.user?._id)
+   console.log(user) 
+   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword) 
    
    if(!isPasswordCorrect){
-      throw new ApiError(400, "Invalid Old Password")
+      throw new ApiError(400, "Invalid Old Password") 
    }
 
    user.password = newPassword
