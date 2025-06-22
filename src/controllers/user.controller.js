@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken"
-import { mongoose } from "mongoose";
+import { mongoose, isValidObjectId } from "mongoose";
 
 
 const generateAccessAndRefreshTokens = async (userId)=>{
@@ -340,6 +340,28 @@ const updateUserCoverImage = asyncHandler( async(req, res) =>{
 
 })
 
+const addToWatchHistory = asyncHandler( async(req, res) =>{
+   const {videoId} = req.body;
+   
+   if (!isValidObjectId(videoId)) {
+    throw new ApiError(400, "Invalid video ID");
+  }
+
+  const user = await User.findById(req.user?._id)
+  
+  if(!user){
+   throw new ApiError(400, "User not logged in")
+  }
+
+  if (!user.watchHistory.includes(videoId)) {
+   user.watchHistory.push(videoId);
+   await user.save();
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, user, "Video pushed into the watchHistory"))
+})
 
 const getUserChannelInfo = asyncHandler(async(req, res) =>{
    const {username} = req.params
@@ -460,7 +482,8 @@ const getWatchHistory = asyncHandler(async(req, res) =>{
    .json(
       new ApiResponse(200, user[0].watchHistory, "Watch history fetched successfully")
    )
-})
+})       
+
 
 
 
@@ -473,8 +496,9 @@ export {
    getCurrentUser,
    updateAccountDetails,
    updateUserAvatar,
+   addToWatchHistory,
    updateUserCoverImage,
    getUserChannelInfo,
-   getWatchHistory
+   getWatchHistory,
 }
 
