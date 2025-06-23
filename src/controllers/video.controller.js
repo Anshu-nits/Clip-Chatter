@@ -210,7 +210,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, deletedVideo, "Video deleted successfully"));
-})
+})                                              
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
@@ -236,11 +236,39 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     );
 })
 
+const incrementView = asyncHandler(async(req, res) => {
+  const { videoId } = req.params
+  
+  if(!isValidObjectId(videoId)){
+    throw new ApiError(400, "Video is not valid")
+  }
+
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $inc: { views: 1 }
+    },
+    {
+      new: true
+    }
+  )
+
+  if(!video){
+    throw new ApiError(500, "Something went wrong while incrementing the video view")
+  }
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200, video, "Video view incremented successfully"))
+
+})
+
 export {
   getAllVideos,
   publishAVideo,
   getVideoById,
   updateVideo,
   deleteVideo,
-  togglePublishStatus
+  togglePublishStatus,
+  incrementView
 }
