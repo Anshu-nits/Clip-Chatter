@@ -350,7 +350,7 @@ const addToWatchHistory = asyncHandler( async(req, res) =>{
   const user = await User.findById(req.user?._id)
   
   if(!user){
-   throw new ApiError(400, "User not logged in")
+   throw new ApiError(400, "User needs to be logged in")
   }
 
   if (!user.watchHistory.includes(videoId)) {
@@ -444,7 +444,7 @@ const getWatchHistory = asyncHandler(async(req, res) =>{
       {
          $lookup: {
             from: "videos",
-            localField: "watchHistory",  
+            localField: "watchHistory",         
             foreignField: "_id",
             as: "watchHistory",
             pipeline: [
